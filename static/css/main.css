@@ -1,0 +1,51 @@
+{{ define "css" }}
+
+/*
+  Regular viewing
+*/
+html, body {
+ background-color: #222;
+ color: #ffd559;
+ margin:0;
+ padding: 0;
+ height: 100%;
+ width: 100%;
+ font-family: monospace;
+}
+#terminal_window {
+  background: #111;
+  max-height: 600px;
+  max-width: 800px;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  border: 1px solid #777;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+#hidden_input {
+  position:absolute;
+  top:0;
+  left:0;
+  z-index:-1;
+  opacity:0;
+}
+#cursor {
+  display: inline-block;
+  min-width: 0.7em;
+  background-color: #ffd559;
+  color: #111;
+  height: 1.2em;
+  line-height: 1em;
+  margin:-4px 0;
+  padding:0
+}
+
+#stdout {
+  max-width: 100%;
+}
+#stdin, #stdin__text {
+  max-width: 100%
+}
+{{ end }}

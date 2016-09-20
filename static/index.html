@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width initial-scale=1">
+  <title>Corvus Crypto (Clifford Richardson)</title>
+  <style>
+  {{ template "css" }}
+  </style>
+</head>
+<body>
+  <input type="text" id="hidden_input">
+  <div id="terminal_window">
+
+    <table id="stdout">
+      <tbody>
+        <tr id="stdin">
+          <td id="stdin__text">
+            <span id="stdin__prefix">guest@corvuscrypto.com:~$ </span><span id="cursor"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script>
+  {{ template "js"}}
+  </script>
+</body>
+</html>

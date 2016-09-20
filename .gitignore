@@ -1,0 +1,5 @@
+#ignore compiled css
+/static/css/*.css
+
+#ignore compiled go binary
+/internal/server/bin

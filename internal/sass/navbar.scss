@@ -3,6 +3,11 @@
 */
 
 .navbar.nav-cc {
+  width: 100%;
+  .nav-wrapper {
+    display: block;
+    margin-left: 20%;
+  }
   background-color: #333;
   a {
     color: #52bae3;
@@ -19,24 +24,27 @@
     transition: border-radius 0.4s ease-out;
   }
   .nav-search {
-    padding: 5px 20px 5px 40px;
-    margin-top: 5px;
-    width: 0px;
-    color: #eee;
-    cursor: pointer;
-    border: 1px solid #333;
-    background-color: transparent;
-    background-image: url("/static/images/search_icon_blue.png");
-    background-repeat: no-repeat;
-    background-size: contain;
-    transition: width 0.6s ease, background-color 0.6s ease;
-    &:focus {
-      cursor: auto;
-      border: 1px solid #444;
-      width: 300px;
-      background-color: #555;
-      background-image: url("/static/images/search_icon_white.png");
-      transition: width 0.6s ease;
+    padding-top: 5px;
+    .nav-search__input{
+      padding: 5px 20px 5px 40px;
+      width: 0px;
+      color: #eee;
+      cursor: pointer;
+      border: 1px solid #333;
+      background-color: transparent;
+      background-image: url("/static/images/search_icon_blue.png");
+      background-repeat: no-repeat;
+      background-size: contain;
+      transition: width 0.6s ease, background-color 0.6s ease;
+
+      &:focus {
+        cursor: auto;
+        border: 1px solid #444;
+        width: 200px;
+        background-color: #555;
+        background-image: url("/static/images/search_icon_white.png");
+        transition: width 0.6s ease;
+      }
     }
   }
 }

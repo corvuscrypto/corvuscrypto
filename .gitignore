@@ -1,5 +1,9 @@
 #ignore compiled css
-/static/css/*.css
+/static/css/main.css
 
 #ignore compiled go binary
 /internal/server/bin
+
+#ignore map files for css and also the sass-cache
+/static/css/*.map
+/internal/.sass-cache

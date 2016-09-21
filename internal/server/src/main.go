@@ -28,10 +28,9 @@ func loadConfig() {
 
 func getRouter() *httprouter.Router {
 	router := httprouter.New()
+	router.ServeFiles("/static/*filepath", http.Dir(Config.StaticPath))
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		data := map[string]interface{}{
-			"header": Header("CorvusCrypto's Blog yo!"),
-		}
+		data := BaseData(r, "CorvusCrypto.com - just another coder blog")
 		err := templates["index.html"].ExecuteTemplate(w, "index.html", data)
 		if err != nil {
 			fmt.Println(err)

@@ -1,0 +1,35 @@
+/*
+  This is the file that holds styles related to posts
+ */
+.post-card {
+  // box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+  margin-top: 1.5em;
+  .post-card__header {
+    border: 1px solid #333;
+    &:hover {
+      background-color: #fff;
+      color: darken(#52bae3, 10%);
+    }
+    transition: background-color 0.4s ease-out, color 0.4s ease-out;
+    cursor: pointer;
+    border-radius: 0.25em;
+    width: 100%;
+    padding: 0.5em;
+    background: #333;
+    color: #52bae3;
+    .header__title {
+      font-size: 14pt;
+    }
+  }
+  .post-card__body {
+    padding: 0.5em 1em;
+    .body__summary{
+      font-size: 12pt;
+    }
+  }
+  .post-card__footer {
+    padding: 0.5em 2.5em;
+    font-size: 10pt;
+    padding: 0.5em;
+  }
+}

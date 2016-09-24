@@ -1,6 +1,7 @@
 @import "./header";
 @import "./navbar";
 @import "./logo";
+@import "./post";
 
 .main-content {
   padding: 20px 5px;
@@ -8,8 +9,10 @@
   min-width: 600px;
   width: 60%;
   .top-summary {
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
     padding: 0.5em 1em;
     border: 1px solid grey;
+    border-radius: 4px;
     font-size: 16pt;
     li {
       margin-top: 1em;

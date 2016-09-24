@@ -13,12 +13,18 @@
     color: #52bae3;
   }
   .mobile {
+    margin: 0.75em 0;
     .nav-link {
       text-align: center;
     }
     .nav-search__input {
       margin: 0 auto;
     }
+  }
+  .navbar-toggler {
+    color: #52bae3;
+    border-color: #52bae3;
+    font-size: 14 pt;
   }
   .nav-link{
     padding: 5px 20px;

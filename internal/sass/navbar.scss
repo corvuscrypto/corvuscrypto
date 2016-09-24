@@ -12,6 +12,14 @@
   a {
     color: #52bae3;
   }
+  .mobile {
+    .nav-link {
+      text-align: center;
+    }
+    .nav-search__input {
+      margin: 0 auto;
+    }
+  }
   .nav-link{
     padding: 5px 20px;
     font-size: 16pt;
@@ -19,9 +27,14 @@
       background-color: #555;
       border-radius: 1px;
     }
+    &.no-highlight:hover {
+      background-color: transparent!important;
+    }
     border-radius: 20px;
     background-color: transparent;
-    transition: border-radius 0.4s ease-out;
+    &.animate{
+      transition: border-radius 0.4s ease-out;
+    }
   }
   .nav-search {
     padding-top: 5px;
@@ -33,7 +46,7 @@
       display: block;
     }
     .nav-search__input{
-      padding: 5px 20px 5px 40px;
+      padding: 5px 20px 5px 20px;
       width: 0px;
       color: #eee;
       cursor: pointer;
@@ -48,10 +61,12 @@
         cursor: auto;
         border: 1px solid #444;
         width: 200px;
+        padding-left: 40px;
         background-color: #555;
         background-image: url("/static/images/search_icon_white.png");
         transition: width 0.6s ease;
       }
     }
   }
+
 }

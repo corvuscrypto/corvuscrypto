@@ -1,0 +1,62 @@
+{{define "about"}}
+<!DOCTYPE html>
+<html>
+{{ template "header" .Header }}
+<body>
+  {{ template "navbar" . }}
+  <div class="main-content">
+    <h1> About Me </h1>
+    <p class="narrative">
+      <img src="/static/images/logo_black.png" class="about__image pull-xs-left"/>
+      Quite simply, I love what I do. All of what I do. This includes coding, of course.
+      I was originally educated in biology and even went to grad school for it. Though I don't
+      have a degree in CS, because of my chosen field learning algorithms and programming were
+      a necessity. While I had learned to program in high school in various languages, being
+      involved in scientific computing was very cool and I loved the small taste I got of
+      bioinformatics. The challenges of handling large data sets of genomic data kept me thinking.
+    </p>
+    <p class="narrative">
+      Alas, when I graduated from my university, I immediately entered into the master's graduate program.
+      I look back and often feel this was my biggest life turning point. To spare the details, I
+      will just say I got burned out and I dropped the program after a year.
+      <image src="/static/images/beaker_headshot.png" class="about__image round pull-xs-right"/>
+      I certainly enjoyed my time and I learned a lot, but I felt a bit depressed from working in an
+      academic setting for 12-14 hours a day and wanted a break.
+    </p>
+    <p class="narrative">
+      With the free time I had, I had tried many new things. I went downhill mountain biking in Angelfire, NM,
+      met up with old friends in Arizona, and even got my skydiving license in Rosharon, Texas at Skydive
+      Spaceland (I'm still active btw and jump out of Skydive Elsinore)! After my partying was done, I decided
+      to move out to southern California to try my hand at biosciences once again. I was saddened to find out
+      <image src="/static/images/skydive_head.png" class="about__image round pull-xs-left"/>
+      that while the businesses are certainly making money down here, not much of that is seen by scientific
+      staff, save for a few senior-level scientists that made about $25/hr. I was able to find a job at a local
+      Guitar Center that netted me about the same amount as I was making at the time ($10/hr) while working as
+      a chemist for an environmental lab. With much more free time and fun I should add!
+    </p>
+    <p class="narrative">
+      I decided that since I still was pretty strong in programming I would use my free time to get acquainted with
+      the ins and outs of software development. It was tiring, but every week I was spending 2-4 hours a day learning
+      a new algorithm from the classic Intro to Algorithms book, or learning the nuances of design patterns. Still,
+      it was fun! There was always a new problem to solve and this is what I crave; problems! My first major project
+      ended up being an altimeter, for which I developed the firmware. It worked well and I learned first hand the
+      challenges of dealing with limited resources and picking algorithms optimized to both time and memory constraints.
+      <image src="/static/images/tinkering.png" class="about__image round pull-xs-right"/>
+      I still have it and it works well (I have personally tested it in the sky and I'm not dead!). After feeling
+      confident enough, I started applying for software development positions to begin my new career. It was
+      depressing at first how many companies required a computer science (CS) degree, but finally I was able to
+      land a job at a financial company where I still work today. I learned quickly that regardless of my lack of formal
+      CS education, I was able to fit into the field and also that the senior devs working for 10 years with CS master's degrees
+      still used StackOverflow and Google for answers just like me!
+    </p>
+    <p class="narrative">
+      Because of my experiences, I am a firm believer that you can learn anything and succeed in any career path given
+      time and effort. However there is always more to learn and while I have a good job, I never stopped looking for
+      more problems to solve. This is my passion and I'm glad to have found it!
+    </p>
+
+  </div>
+  {{ template "footer" . }}
+</body>
+</html>
+{{end}}

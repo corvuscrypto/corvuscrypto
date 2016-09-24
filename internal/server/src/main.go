@@ -17,7 +17,7 @@ var Config struct {
 
 func loadConfig() {
 	Config.StaticPath, _ = filepath.Abs("../../../static")
-	Config.TemplatePath = Config.StaticPath + "/html"
+	Config.TemplatePath, _ = filepath.Abs("../../templates")
 	Config.Assets = map[string]interface{}{
 		"CSS": map[string]string{
 			"URL":     "/static/css/main.css",

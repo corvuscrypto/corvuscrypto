@@ -6,7 +6,6 @@
   width: 100%;
   .nav-wrapper {
     display: block;
-    margin-left: 20%;
   }
   background-color: #333;
   a {
@@ -25,6 +24,13 @@
   }
   .nav-search {
     padding-top: 5px;
+    &::after {
+      content:"";
+      padding-right: 200px;
+      margin: 0;
+      height: 0;
+      display: block;
+    }
     .nav-search__input{
       padding: 5px 20px 5px 40px;
       width: 0px;

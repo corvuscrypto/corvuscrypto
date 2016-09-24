@@ -1,13 +1,28 @@
+{{define "index"}}
 <!DOCTYPE html>
 <html>
 {{ template "header" .Header }}
 <body>
   {{ template "navbar" . }}
   <div class="main-content">
-    <p class="top-summary">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    </p>
+    <div class="top-summary">
+      <strong><i>Corvus crypto</i></strong>:
+      <ol>
+        <li>
+          Abbreviation for <a href="https://wikipedia.org/wiki/Chihuahuan_raven" target="_blank"><i>Corvus cryptoleucus</i></a> (hidden-white raven), a smaller variant of the common raven (<i>Corvus corax</i>) which
+          has white feathers around its neck that are hidden by a layer of black feathers.
+        </li>
+        <li>
+          A software developer who currently resides in southern California. Usually found programming in Python at his place of employment,
+          though he has been spotted creating software in C/C++, Java, Go, Node.js, and x86 assembly (and more) at times for fun.
+        </li>
+      </ol>
+    </div>
+    <div class="latest-post">
+      {{ template "posts.card" .LatestPost}}
+    </div>
   </div>
   {{ template "footer" . }}
 </body>
 </html>
+{{end}}

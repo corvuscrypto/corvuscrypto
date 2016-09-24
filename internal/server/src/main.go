@@ -31,7 +31,7 @@ func getRouter() *httprouter.Router {
 	router.ServeFiles("/static/*filepath", http.Dir(Config.StaticPath))
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - just another coder blog")
-		err := templates["index.html"].ExecuteTemplate(w, "index.html", data)
+		err := globalTemplate.ExecuteTemplate(w, "index", data)
 		if err != nil {
 			fmt.Println(err)
 		}

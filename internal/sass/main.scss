@@ -8,6 +8,12 @@
   min-width: 600px;
   width: 60%;
   .top-summary {
+    padding: 0.5em 1em;
+    border: 1px solid grey;
     font-size: 16pt;
+    li {
+      margin-top: 1em;
+      font-size: 12pt;
+    }
   }
 }

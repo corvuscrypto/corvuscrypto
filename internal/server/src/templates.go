@@ -1,14 +1,33 @@
 package main
 
 import (
-	"html/template"
 	"io/ioutil"
 	"log"
+	"text/template"
 )
 
-var templates map[string]*template.Template
+var globalTemplate *template.Template
 
 var tempFuncs template.FuncMap
+
+func walkAndCompile(subdir string) {
+	files, err := ioutil.ReadDir(Config.TemplatePath + subdir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			walkAndCompile(subdir + "/" + file.Name())
+		} else {
+			var err error
+			name := file.Name()
+			globalTemplate, err = globalTemplate.ParseFiles(Config.TemplatePath + subdir + "/" + name)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
 
 func compileTemplates() {
 
@@ -17,31 +36,9 @@ func compileTemplates() {
 		return a == b
 	}
 
-	templates = make(map[string]*template.Template)
-	commonTemplate, err := template.New("").ParseFiles(
-		Config.TemplatePath+"/header.html",
-		Config.TemplatePath+"/navbar.html",
-		Config.TemplatePath+"/footer.html",
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
+	globalTemplate = template.New("globalCommon")
 
-	files, err := ioutil.ReadDir(Config.TemplatePath + "/pages")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		if !file.IsDir() {
-			var err error
-			name := file.Name()
-			templates[name], err = commonTemplate.ParseFiles(Config.TemplatePath + "/pages/" + name)
-			templates[name] = templates[name].Funcs(tempFuncs)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-	}
+	walkAndCompile("")
+	globalTemplate = globalTemplate.Funcs(tempFuncs)
 
 }

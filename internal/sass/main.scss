@@ -21,6 +21,18 @@
       }
     }
   }
+  .about__image {
+    max-width: 200px;
+    margin: 20px;
+    &.round {
+      border-radius: 100%;
+    }
+  }
+  .narrative {
+    padding: 5px;
+    font-size: 16pt;
+    text-align: justify;
+  }
 }
 
 @media screen and (max-width: 600px) {
@@ -38,5 +50,17 @@
         font-size: 12pt;
       }
     }
+  }
+  .about__image {
+    max-width: 150px;
+    margin: 20px;
+    &.round {
+      border-radius: 100%;
+    }
+  }
+  .narrative {
+    padding: 5px;
+    font-size: 16pt;
+    text-align: left;
   }
 }

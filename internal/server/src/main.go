@@ -45,6 +45,20 @@ func getRouter() *httprouter.Router {
 			fmt.Println(err)
 		}
 	})
+	router.GET("/posts", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		data := BaseData(r, "CorvusCrypto.com - Posts")
+		err := globalTemplate.ExecuteTemplate(w, "posts", data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
+	router.GET("/about", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		data := BaseData(r, "CorvusCrypto.com - About Me")
+		err := globalTemplate.ExecuteTemplate(w, "about", data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
 	return router
 }
 

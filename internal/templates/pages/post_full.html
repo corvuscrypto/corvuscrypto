@@ -1,0 +1,15 @@
+{{define "postFull"}}
+<!DOCTYPE html>
+<html>
+{{ template "header" .Header }}
+<body>
+  {{ template "navbar" . }}
+  <div class="main-content">
+    <h1> {{ .Post.Date | date }} - {{ .Post.Title }} </h1>
+    <p class="narrative">
+      {{ .Post.Body }}
+    </p>
+  </div>
+</body>
+</html>
+{{end}}

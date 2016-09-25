@@ -50,6 +50,24 @@ func getRouter() *httprouter.Router {
 			fmt.Println(err)
 		}
 	})
+	router.GET("/posts/:postURL", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		url := p.ByName("postURL")
+		data := BaseData(r, "CorvusCrypto.com - Posts")
+		post, err := getPostByURL(url)
+		if err != nil {
+			if err == ErrPostNotFound {
+				w.WriteHeader(404)
+			} else {
+				w.WriteHeader(500)
+			}
+			return
+		}
+		data["Post"] = post
+		err = globalTemplate.ExecuteTemplate(w, "postFull", data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
 	router.GET("/about", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - About Me")
 		err := globalTemplate.ExecuteTemplate(w, "about", data)
@@ -62,6 +80,7 @@ func getRouter() *httprouter.Router {
 
 func main() {
 	loadConfig()
+	initializeDBSession()
 	compileTemplates()
 	router := getRouter()
 	server := new(http.Server)

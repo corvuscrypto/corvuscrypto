@@ -1,11 +1,11 @@
 {{ define "posts.card" }}
   <div class="post-card">
     <div class="post-card__header">
-      <h2 class="header__title">
-        <a href="/posts/{{ .URL }}">
-          {{ .Date }} - {{ .Title }}
-        </a>
-      </h2>
+      <a href="/posts/{{ .URL }}">
+        <h2 class="header__title">
+          {{ .Date | date }} - {{ .Title }}
+        </h2>
+      </a>
     </div>
     <div class="post-card__body">
       <p class="body__summary">{{ .Summary }}</p>

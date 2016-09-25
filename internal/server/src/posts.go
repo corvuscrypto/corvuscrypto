@@ -27,9 +27,9 @@ type Post struct {
 var PostsDB *mgo.Database
 
 //initializeSession connects to mongo and sets the global DB variable to the blog_posts db.
-func initializeSession() {
+func initializeDBSession() {
 	//just use default. SOOOOO ORIGINAL
-	dbSession, err := mgo.Dial(":27017")
+	dbSession, err := mgo.Dial("localhost:27017")
 	if err != nil {
 		log.Fatal(err)
 	}

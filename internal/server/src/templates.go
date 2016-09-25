@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"text/template"
+	"time"
 )
 
 var globalTemplate *template.Template
@@ -32,13 +34,14 @@ func walkAndCompile(subdir string) {
 func compileTemplates() {
 
 	tempFuncs = make(template.FuncMap)
-	tempFuncs["eq"] = func(a, b interface{}) bool {
-		return a == b
+
+	tempFuncs["date"] = func(a interface{}) interface{} {
+		date := a.(time.Time)
+		return fmt.Sprintf("%02d/%02d/%d", date.Month(), date.Day(), date.Year())
 	}
 
-	globalTemplate = template.New("globalCommon")
+	globalTemplate = template.New("globalCommon").Funcs(tempFuncs)
 
 	walkAndCompile("")
-	globalTemplate = globalTemplate.Funcs(tempFuncs)
 
 }

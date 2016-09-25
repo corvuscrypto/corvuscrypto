@@ -47,7 +47,13 @@ func getRouter() *httprouter.Router {
 	})
 	router.GET("/posts", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - Posts")
-		err := globalTemplate.ExecuteTemplate(w, "posts", data)
+		latestPost, err := getLatestPost()
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		data["LatestPost"] = latestPost
+		err = globalTemplate.ExecuteTemplate(w, "posts", data)
 		if err != nil {
 			fmt.Println(err)
 		}

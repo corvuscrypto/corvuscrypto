@@ -17,6 +17,9 @@
     .nav-link {
       text-align: center;
     }
+    .nav-search {
+      padding-left: 20px;
+    }
     .nav-search__input {
       margin: 0 auto;
     }
@@ -52,16 +55,18 @@
       display: block;
     }
     .nav-search__input{
-      padding: 5px 20px 5px 20px;
+      padding: 5px 20px 5px 40px;
       width: 0px;
       color: #eee;
       cursor: pointer;
       border: 1px solid #333;
-      background-color: transparent;
       background-image: url("/static/images/search_icon_blue.png");
+      background-color: transparent;
       background-repeat: no-repeat;
       background-size: contain;
-      transition: width 0.6s ease, background-color 0.6s ease;
+      &.transition{
+        transition: width 0.6s ease, background-color 0.6s ease;
+      }
 
       &:focus {
         cursor: auto;

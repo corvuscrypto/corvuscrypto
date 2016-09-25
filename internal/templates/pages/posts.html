@@ -6,6 +6,9 @@
   {{ template "navbar" . }}
   <div class="main-content">
     <h1> Blog Posts </h1>
+    {{ range .Posts }}
+      {{ template "posts.card" . }}
+    {{end}}
   </div>
   {{ template "footer" . }}
 </body>

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -45,7 +46,17 @@ func getRouter() *httprouter.Router {
 	})
 	router.GET("/posts", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - Posts")
-		err := globalTemplate.ExecuteTemplate(w, "posts", data)
+		last, err := strconv.Atoi(r.FormValue("last"))
+		if err != nil {
+			last = 0
+		}
+		posts, err := getAllPosts(last)
+		if err != nil {
+			w.WriteHeader(500)
+			return
+		}
+		data["Posts"] = posts
+		err = globalTemplate.ExecuteTemplate(w, "posts", data)
 		if err != nil {
 			fmt.Println(err)
 		}

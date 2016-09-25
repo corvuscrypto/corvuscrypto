@@ -122,7 +122,7 @@ func getAllPosts(prevLast int) ([]*Post, error) {
 	tempPost := new(Post)
 
 	for iter.Next(tempPost) {
-		var newPost *Post
+		var newPost = new(Post)
 		*newPost = *tempPost
 		posts = append(posts, newPost)
 		tempPost = nil

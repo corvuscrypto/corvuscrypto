@@ -4,11 +4,14 @@
 .post-card {
   // box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
   margin-top: 1.5em;
+  .post-link {
+    text-decoration: none;
+  }
   .post-card__header {
     border: 1px solid #333;
     &:hover {
       background-color: #fff;
-      color: darken(#52bae3, 10%);
+      color: darken(#52bae3, 30%);
     }
     transition: background-color 0.4s ease-out, color 0.4s ease-out;
     cursor: pointer;

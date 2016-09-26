@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -46,15 +47,28 @@ func getRouter() *httprouter.Router {
 	})
 	router.GET("/posts", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - Posts")
+		var posts []*Post
+
 		last, err := strconv.Atoi(r.FormValue("last"))
 		if err != nil {
 			last = 0
 		}
-		posts, err := getAllPosts(last)
-		if err != nil {
-			w.WriteHeader(500)
-			return
+		q := strings.ToLower(strings.Trim(r.FormValue("q"), " "))
+		if q != "" {
+			searchTerms := strings.Split(q, " ")
+			posts, err = searchPosts(searchTerms, last)
+			if err != nil {
+				w.WriteHeader(500)
+				return
+			}
+		} else {
+			posts, err = getAllPosts(last)
+			if err != nil {
+				w.WriteHeader(500)
+				return
+			}
 		}
+
 		data["Posts"] = posts
 		err = globalTemplate.ExecuteTemplate(w, "posts", data)
 		if err != nil {
@@ -63,7 +77,6 @@ func getRouter() *httprouter.Router {
 	})
 	router.GET("/posts/:postURL", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		url := p.ByName("postURL")
-		data := BaseData(r, "CorvusCrypto.com - Posts")
 		post, err := getPostByURL(url)
 		if err != nil {
 			if err == ErrPostNotFound {
@@ -73,6 +86,7 @@ func getRouter() *httprouter.Router {
 			}
 			return
 		}
+		data := BaseData(r, "CorvusCrypto.com - "+strings.Title(post.Title))
 		data["Post"] = post
 		err = globalTemplate.ExecuteTemplate(w, "postFull", data)
 		if err != nil {

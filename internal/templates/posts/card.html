@@ -1,12 +1,12 @@
 {{ define "posts.card" }}
   <div class="post-card">
-    <div class="post-card__header">
-      <a href="/posts/{{ .URL }}">
-        <h2 class="header__title">
-          {{ .Date | date }} - {{ .Title }}
-        </h2>
-      </a>
-    </div>
+    <a class="post-link" href="/posts/{{ .URL }}">
+      <div class="post-card__header">
+          <h2 class="header__title">
+            {{ .Date | date }} - {{ .Title }}
+          </h2>
+      </div>
+    </a>
     <div class="post-card__body">
       <p class="body__summary">{{ .Summary }}</p>
     </div>

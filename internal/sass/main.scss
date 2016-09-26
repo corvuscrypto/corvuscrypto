@@ -62,5 +62,8 @@
     padding: 5px;
     font-size: 14pt;
     text-align: left;
+    word-wrap: break-word;
+    hyphens: manual;
+    -webkit-hyphens: auto;
   }
 }

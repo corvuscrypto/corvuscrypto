@@ -1,13 +1,16 @@
 {{define "posts"}}
 <!DOCTYPE html>
 <html>
-{{ template "header" .Header }}
+<head>
+  {{ template "header" .Header }}
+</head>
 <body>
   {{ template "navbar" . }}
   <div class="main-content">
     <h1> Blog Posts </h1>
     {{ range .Posts }}
       {{ template "posts.card" . }}
+    {{ else }}
     {{end}}
   </div>
   {{ template "footer" . }}

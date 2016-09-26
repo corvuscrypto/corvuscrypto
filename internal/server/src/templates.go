@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -39,6 +40,7 @@ func compileTemplates() {
 		date := a.(time.Time)
 		return fmt.Sprintf("%02d/%02d/%d", date.Month(), date.Day(), date.Year())
 	}
+	tempFuncs["title"] = strings.Title
 
 	globalTemplate = template.New("globalCommon").Funcs(tempFuncs)
 

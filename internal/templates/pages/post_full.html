@@ -1,14 +1,36 @@
 {{define "postFull"}}
 <!DOCTYPE html>
 <html>
-{{ template "header" .Header }}
+<head>
+  <meta property="og:url" content="http://www.corvuscrypto.com/posts/{{ .Post.URL }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ .Post.Title | title }}" />
+  <meta property="og:description" content="{{ .Post.Summary }}" />
+  <meta property="og:image" content="http://www.corvuscrypto.com/static/images/logo_black.png" />
+  {{ template "header" .Header }}
+</head>
 <body>
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.7&appId=238075566595275";
+  fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
   {{ template "navbar" . }}
   <div class="main-content">
-    <h1> {{ .Post.Date | date }} - {{ .Post.Title }} </h1>
-    <p class="narrative">
-      {{ .Post.Body }}
-    </p>
+    <div class="post">
+      <h1>{{ .Post.Title | title }}</h1>
+      <span class="timestamp">{{ .Post.Date | date }}</span>
+      {{ template "socialBar" .}}
+      <hr/>
+      <p class="narrative">
+        {{ .Post.Body }}
+      </p>
+      <hr/>
+      {{ template "socialBar" .}}
+    </div>
   </div>
   {{ template "footer" . }}
 </body>

@@ -30,22 +30,31 @@ func loadConfig() {
 			"Version": "1",
 		},
 	}
+	//TODO add in hashing of config password
+
 }
 func getRouter() *httprouter.Router {
-	router := httprouter.New()
 
-	router.GET("", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	router := httprouter.New()
+	router.GET("/drafts", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		err := globalTemplate.ExecuteTemplate(w, "drafts", nil)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}))
+	router.GET("/dashboard", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	}))
+	router.POST("/login", login)
 	return router
 }
 
 func main() {
-
+	loadConfig()
+	initCipher()
+	router := getRouter()
 	server := new(http.Server)
+	server.Handler = router
 	server.Addr = ":8081"
-	server.ListenAndServeTLS("", "")
+	//server.ListenAndServeTLS("","")
+	server.ListenAndServe()
 }

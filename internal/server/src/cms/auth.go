@@ -1,9 +1,11 @@
 package main
 
 import (
+	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -24,24 +26,39 @@ var lastNonceGenerationTime time.Time
 
 var cipherInterface cipher.AEAD
 
+func initCipher() {
+	secretKey = make([]byte, 32)
+	secretNonce = make([]byte, 12)
+	verificationNonce = make([]byte, 32)
+	rand.Read(secretKey)
+	rand.Read(secretNonce)
+	rand.Read(verificationNonce)
+	lastNonceGenerationTime = time.Now()
+	block, _ := aes.NewCipher(secretKey)
+	var err error
+	cipherInterface, err = cipher.NewGCM(block)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func generateSignedAuthToken() []byte {
-	var token []byte
 	//we will do a simple signed random nonce to check against
-	cipherInterface.Seal(token, secretNonce, verificationNonce, nil)
+	token := cipherInterface.Seal(nil, secretNonce, verificationNonce, nil)
 	return token
 }
 
-func tokenValid(token []byte) bool {
+func isTokenValid(token []byte) bool {
 	//if it has been past one month since the last nonce, force return false
 	//after generating a new nonce
 	if time.Since(lastNonceGenerationTime).Seconds() > monthSeconds {
 		verificationNonce = make([]byte, 32)
 		rand.Read(verificationNonce)
+		lastNonceGenerationTime = time.Now()
 		return false
 	}
-	var decodedVal []byte
-	_, err := cipherInterface.Open(decodedVal, secretNonce, token, nil)
-	if err != nil {
+	decodedVal, err := cipherInterface.Open(nil, secretNonce, token, nil)
+	if err != nil || string(decodedVal) != string(verificationNonce) {
 		return false
 	}
 	return true
@@ -60,7 +77,7 @@ func checkAuth(f httprouter.Handle) httprouter.Handle {
 				authorized = false
 			}
 			//check the token
-			authorized = tokenValid(tokenBytes)
+			authorized = isTokenValid(tokenBytes)
 		}
 
 		if authorized {
@@ -92,15 +109,15 @@ func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	//create the token and base64 encode it
 	token := generateSignedAuthToken()
 	encodedToken := base64.StdEncoding.EncodeToString(token)
-
 	//create the cookie to hold the signed token
 	tokenCookie := new(http.Cookie)
-	tokenCookie.Secure = true
 	tokenCookie.Name = cookieName
 	tokenCookie.HttpOnly = true
 	tokenCookie.MaxAge = 60 * 60 * 24 * 30 //one month expiration
 	tokenCookie.Value = encodedToken
+	tokenCookie.Domain = ""
 
 	http.SetCookie(w, tokenCookie)
 	//generate data and do redirect and get
+	http.Redirect(w, r, "/", http.StatusFound)
 }

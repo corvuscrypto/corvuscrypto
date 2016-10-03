@@ -36,14 +36,23 @@ func loadConfig() {
 func getRouter() *httprouter.Router {
 
 	router := httprouter.New()
-	router.GET("/drafts", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		err := globalTemplate.ExecuteTemplate(w, "drafts", nil)
+	router.ServeFiles("/static/*filepath", http.Dir(Config.StaticPath))
+	router.GET("/", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		err := globalTemplate.ExecuteTemplate(w, "cmsIndex", nil)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}))
 	router.GET("/dashboard", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}))
+	router.GET("/new", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		data := BaseData(r, "New Post")
+		err := globalTemplate.ExecuteTemplate(w, "editPost", data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
+	router.GET("/login", loginView)
 	router.POST("/login", login)
 	return router
 }
@@ -51,6 +60,7 @@ func getRouter() *httprouter.Router {
 func main() {
 	loadConfig()
 	initCipher()
+	compileTemplates()
 	router := getRouter()
 	server := new(http.Server)
 	server.Handler = router

@@ -1,0 +1,18 @@
+{{ define "cmsNavbar" }}
+<nav class="navbar nav-cc navbar-fixed-top">
+  <div class="nav-wrapper hidden-md-down">
+    <ul class="nav navbar-nav">
+      <a href="/" class="navbar-brand">CorvusCrypto CMS<img class="logo-small" src="/static/images/logo.png"/></a>
+      <li class="nav-item">
+        <a class="nav-link animate {{if eq .Request.URL.Path "/"}}active{{end}}" href="/">Manage Posts</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link animate {{if eq .Request.URL.Path "/drafts"}}active{{end}}" href="/drafts">Drafts</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link animate {{if eq .Request.URL.Path "/newpost"}}active{{end}}" href="/drafts">New Post</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+{{ end }}

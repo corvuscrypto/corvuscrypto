@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -83,8 +84,25 @@ func checkAuth(f httprouter.Handle) httprouter.Handle {
 		if authorized {
 			f(_w, _r, _p)
 		} else {
-			_w.WriteHeader(401)
+			http.Redirect(_w, _r, "/login", http.StatusFound)
 		}
+	}
+}
+
+func loginView(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	data := BaseData(r, "CorvusCrypto.com - Login")
+	err := globalTemplate.ExecuteTemplate(w, "login", data)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func loginViewWithError(w http.ResponseWriter, r *http.Request) {
+	data := BaseData(r, "CorvusCrypto.com - Login")
+	data["Error"] = true
+	err := globalTemplate.ExecuteTemplate(w, "login", data)
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 
@@ -95,14 +113,14 @@ func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	// first check for username consistency
 	if username != Config.OwnerUsername {
-		//Send Failure data
+		loginViewWithError(w, r)
 		return
 	}
 
 	//check password matching
 	err := bcrypt.CompareHashAndPassword(Config.OwnerPassword, password)
 	if err != nil {
-		//Send Failure data
+		loginViewWithError(w, r)
 		return
 	}
 

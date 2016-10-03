@@ -1,0 +1,51 @@
+{{ define "editPost" }}
+<!DOCTYPE html>
+<html>
+<head>
+  {{ template "header" .Header }}
+</head>
+<body>
+  {{ template "cmsNavbar" . }}
+  <div class="main-content">
+    <h1>Editing Post</h1>
+    <form target="{{.Request.URL}}" method="POST">
+      <div class="form-group row">
+        <label for="title" class="col-sm-3 col-form-label">Title</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" placeholder="Username">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="short-url" class="col-sm-3 col-form-label">Short URL</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" placeholder="example-short-url">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="tags" class="col-sm-3 col-form-label">Tags (comma separated)</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" placeholder="tags">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="Summary" class="col-sm-3 col-form-label">Summary</label>
+        <div class="col-sm-9">
+          <textarea class="form-control" rows="5" maxlength="250"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-9">
+          <input type="submit" name="action" value="Save" class="btn btn-primary">
+          <input type="submit" name="action" value="Save and Publish Later" class="btn btn-warning">
+          <input type="submit" name="action" value="Save and Publish Now" class="btn btn-success">
+          <input type="submit" name="action" value="Delete" class="btn btn-danger">
+        </div>
+      </div>
+    </form>
+  </div>
+  {{ template "footer" .}}
+</body>
+</html>
+{{end}}

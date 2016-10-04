@@ -2,6 +2,7 @@
 @import "./navbar";
 @import "./logo";
 @import "./post";
+@import "./cms";
 
 @media screen and (min-width: 600px) {
   .main-content {
@@ -20,6 +21,7 @@
         font-size: 12pt;
       }
     }
+
   }
   .about__image {
     max-width: 200px;

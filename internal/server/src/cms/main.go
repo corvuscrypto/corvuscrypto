@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -45,8 +46,22 @@ func getRouter() *httprouter.Router {
 	}))
 	router.GET("/dashboard", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}))
-	router.GET("/new", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	router.GET("/newpost", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "New Post")
+		err := globalTemplate.ExecuteTemplate(w, "editPost", data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
+	//Not very RESTful but eh.
+	router.POST("/drafts/save", nil)
+	router.GET("/drafts/:id/edit", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		postID := strings.TrimSpace(p.ByName("id"))
+		if postID == "" || len(postID) != 24 {
+			http.Redirect(w, r, "/newpost", http.StatusFound)
+			return
+		}
+		data := BaseData(r, "Edit Post")
 		err := globalTemplate.ExecuteTemplate(w, "editPost", data)
 		if err != nil {
 			fmt.Println(err)

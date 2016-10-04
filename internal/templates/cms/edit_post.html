@@ -7,24 +7,24 @@
 <body>
   {{ template "cmsNavbar" . }}
   <div class="main-content">
-    <h1>{{ if eq .Request.URL.Path "edit"}}Edit{{else}}New{{end}} Post</h1>
-    <form target="{{.Request.URL}}" method="POST" id="post-form">
+    <h1>{{ if has .Request.URL.Path "edit"}}Edit{{else}}New{{end}} Post</h1>
+    <form target="{{.Request.URL.Path}}" method="POST" id="post-form">
       <div class="form-group row">
         <label for="title" class="col-sm-3 col-form-label">Title</label>
         <div class="col-sm-9">
-          <input type="text" class="form-control" placeholder="Username">
+          <input type="text" class="form-control" name="title" placeholder="Title">
         </div>
       </div>
       <div class="form-group row">
         <label for="short-url" class="col-sm-3 col-form-label">Short URL</label>
         <div class="col-sm-9">
-          <input type="text" class="form-control" placeholder="example-short-url">
+          <input type="text" class="form-control" name="shortURL" placeholder="example-short-url">
         </div>
       </div>
       <div class="form-group row">
         <label for="tags" class="col-sm-3 col-form-label">Tags (comma separated)</label>
         <div class="col-sm-9">
-          <input type="text" class="form-control" placeholder="tags">
+          <input type="text" class="form-control" name="tags" placeholder="tags">
         </div>
       </div>
       <div class="form-group row">
@@ -48,6 +48,8 @@
         </div>
         <div class="col-sm-9">
           <input type="hidden" name="actionValue" value=""/>
+          <input type="hidden" name="postID" value=""/>
+          <input type="hidden" name="publishTime" value=""/>
           <button data-value="0" class="btn submit-btn btn-primary">Save</button>
           <button data-value="1" class="btn submit-btn btn-warning">Save and Publish Later</button>
           <button data-value="2" class="btn submit-btn btn-success">Save and Publish Now</button>
@@ -71,7 +73,14 @@
   {{ template "footer" .}}
   <script>
     $(".submit-btn").click(function(e){
-      document.forms['post-form']['actionValue'].value = $(this).data('value');
+      var numAction = $(this).data('value')
+      var postForm = document.forms['post-form'];
+      postForm['actionValue'].value = numAction;
+      if (numAction === "1") {
+        //pull up the date selection modal
+      } else {
+        document.forms['post-form'].submit();
+      }
       e.preventDefault();
     })
     $("#show-preview-btn").click(function(e){
@@ -80,12 +89,27 @@
       content += "</div>";
       $(".preview .modal-body").html(content)
       $(".modal-body pre code").each(function(_, a){
-        console.log("ses")
         hljs.highlightBlock(a);
       })
       $(".preview").modal("show");
       e.preventDefault();
     })
+
+    function autoSave(){
+      var postForm = document.forms['post-form'];
+      var autoSaveData = {
+        title: postForm['title'].value,
+        shortURL: postForm['shortURL'].value,
+        tags: postForm['tags'].value,
+        summary: postForm['summary'].value,
+        postID: postForm['postID'].value,
+        actionValue: 0, //0 for save
+      };
+      $.post("/drafts", autoSaveData).success(function(data){
+        var postID = data.data.postID;
+        postForm['postID'].value = postID;
+      })
+    }
   </script>
 </body>
 </html>

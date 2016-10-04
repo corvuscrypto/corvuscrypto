@@ -7,7 +7,7 @@
 <body>
   {{ template "cmsNavbar" . }}
   <div class="main-content">
-    <h1>Editing Post</h1>
+    <h1>{{ if eq .Request.URL.Path "edit"}}Edit{{else}}New{{end}} Post</h1>
     <form target="{{.Request.URL}}" method="POST" id="post-form">
       <div class="form-group row">
         <label for="title" class="col-sm-3 col-form-label">Title</label>
@@ -79,6 +79,10 @@
       content += document.forms['post-form']['post'].value;
       content += "</div>";
       $(".preview .modal-body").html(content)
+      $(".modal-body pre code").each(function(_, a){
+        console.log("ses")
+        hljs.highlightBlock(a);
+      })
       $(".preview").modal("show");
       e.preventDefault();
     })

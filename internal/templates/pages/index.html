@@ -20,8 +20,16 @@
         </li>
       </ol>
     </div>
+    <div class="welcome-intro">
+      <p class="narrative">
+        Hey there! First off, sorry for all the javascript bloat, but you know how things are these days; you just aren't
+        a cool kid if you don't use JS. Hopefully some of the things I post here are helpful to other developers around
+        the world. If you want to know more about my background I give a fairly brief write-up on the "About Me" page!
+      </p>
+    </div>
     {{ if .LatestPost }}
     <div class="latest-post">
+      <h2>Latest Post</h2>
       {{ template "posts.card" .LatestPost}}
     </div>
     {{end}}

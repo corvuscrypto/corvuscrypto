@@ -1,13 +1,82 @@
 package main
 
 import (
+	"bufio"
+	"compress/gzip"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
+
+type compressionWriter struct {
+	io.Writer
+	http.ResponseWriter
+}
+
+func (c *compressionWriter) Write(p []byte) (int, error) {
+	if c.Header().Get("Content-Type") == "" {
+		c.Header().Set("Content-Type", http.DetectContentType(p))
+	}
+	b, err := c.Writer.Write(p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return b, err
+}
+
+func compress(handler httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		w.Header().Set("Content-Encoding", "gzip")
+		newWriter := new(compressionWriter)
+		newWriter.ResponseWriter = w
+		gzw := gzip.NewWriter(w)
+		newWriter.Writer = gzw
+		handler(newWriter, r, p)
+		err := gzw.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func serveStatic(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	filepath := p.ByName("filepath")
+	// first reject all requests with .. in the path
+	if strings.Contains(filepath, "..") || len(filepath) < 3 {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	var contentType = ""
+	switch filepath[len(filepath)-3:] {
+	case "css":
+		contentType = "text/css"
+		break
+	case ".js":
+		contentType = "text/javascript"
+		break
+	}
+
+	w.Header().Set("Content-Type", contentType)
+
+	file, err := os.Open(Config.StaticPath + filepath)
+	defer file.Close()
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	reader := bufio.NewReader(file)
+	_, err = reader.WriteTo(w)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Println(err)
+	}
+}
 
 func serverErrorPage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
@@ -20,8 +89,8 @@ func serverErrorPage(w http.ResponseWriter, r *http.Request) {
 
 func getRouter() *httprouter.Router {
 	router := httprouter.New()
-	router.ServeFiles("/static/*filepath", http.Dir(Config.StaticPath))
-	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	router.GET("/static/*filepath", compress(serveStatic))
+	router.GET("/", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - just another coder blog")
 
 		latestPost, err := getLatestPost()
@@ -35,8 +104,8 @@ func getRouter() *httprouter.Router {
 		if err != nil {
 			fmt.Println(err)
 		}
-	})
-	router.GET("/posts", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	}))
+	router.GET("/posts", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - Posts")
 		var posts []*Post
 
@@ -65,8 +134,8 @@ func getRouter() *httprouter.Router {
 		if err != nil {
 			fmt.Println(err)
 		}
-	})
-	router.GET("/posts/:postURL", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	}))
+	router.GET("/posts/:postURL", compress(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		url := p.ByName("postURL")
 		post, err := getPostByURL(url)
 		if err != nil {
@@ -83,13 +152,13 @@ func getRouter() *httprouter.Router {
 		if err != nil {
 			fmt.Println(err)
 		}
-	})
-	router.GET("/about", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	}))
+	router.GET("/about", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - About Me")
 		err := globalTemplate.ExecuteTemplate(w, "about", data)
 		if err != nil {
 			fmt.Println(err)
 		}
-	})
+	}))
 	return router
 }

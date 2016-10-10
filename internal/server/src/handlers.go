@@ -29,6 +29,13 @@ func (c *compressionWriter) Write(p []byte) (int, error) {
 	return b, err
 }
 
+func cached(r *http.Request) bool {
+	if r.Header.Get("If-None-Match") == Config.Etag {
+		return true
+	}
+	return false
+}
+
 func compress(handler httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Content-Encoding", "gzip")
@@ -38,21 +45,23 @@ func compress(handler httprouter.Handle) httprouter.Handle {
 		newWriter.Writer = gzw
 		handler(newWriter, r, p)
 		err := gzw.Close()
-		if err != nil {
+		if err != nil && err != http.ErrBodyNotAllowed {
 			fmt.Println(err)
 		}
 	}
 }
 
 func serveStatic(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	filepath := p.ByName("filepath")
-	// first reject all requests with .. in the path
-	if strings.Contains(filepath, "..") || len(filepath) < 3 {
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusForbidden)
+
+	//do a cache check
+	if cached(r) {
+		w.WriteHeader(http.StatusNotModified)
 		return
 	}
-	var contentType = ""
+
+	filepath := p.ByName("filepath")
+
+	var contentType = "text/plain"
 	switch filepath[len(filepath)-3:] {
 	case "css":
 		contentType = "text/css"
@@ -63,6 +72,17 @@ func serveStatic(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 
 	w.Header().Set("Content-Type", contentType)
+
+	// first reject all requests with .. in the path
+	if strings.Contains(filepath, "..") || len(filepath) < 3 {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	//if we get this far set the cache header values
+	w.Header().Set("Cache-Control", "max-age=31104000")
+	w.Header().Set("ETag", Config.Etag)
 
 	file, err := os.Open(Config.StaticPath + filepath)
 	defer file.Close()

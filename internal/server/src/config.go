@@ -13,6 +13,7 @@ type config struct {
 	StaticPath   string
 	Assets       map[string]interface{}
 	LogFilePath  string
+	Etag         string
 }
 
 //Config for ALL the things

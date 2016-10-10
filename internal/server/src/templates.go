@@ -41,6 +41,7 @@ func compileTemplates() {
 		return fmt.Sprintf("%02d/%02d/%d", date.Month(), date.Day(), date.Year())
 	}
 	tempFuncs["title"] = strings.Title
+	tempFuncs["has"] = strings.Contains
 
 	globalTemplate = template.New("globalCommon").Funcs(tempFuncs)
 

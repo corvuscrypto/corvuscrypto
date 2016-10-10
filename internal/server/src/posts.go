@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log"
 	"time"
 
@@ -10,7 +9,7 @@ import (
 )
 
 //Only error we really need
-var ErrPostNotFound = errors.New("Post specified was not found!")
+var ErrPostNotFound = mgo.ErrNotFound
 
 //Post represents a blog post
 type Post struct {
@@ -36,16 +35,14 @@ func initializeDBSession() {
 	PostsDB = dbSession.DB("blog")
 }
 
-func getLatestPost() (*Post, error) {
-	var err error
-	latestPost := new(Post)
+func getLatestPost() (latestPost *Post, err error) {
 	err = PostsDB.C("posts").Find(nil).Sort("-_id").One(latestPost)
-	return latestPost, err
+	return
 }
 
 func getPostByURL(url string) (*Post, error) {
 	var err error
-	post := new(Post)
+	post := &Post{}
 	err = PostsDB.C("posts").Find(bson.M{
 		"url": url,
 	}).One(post)

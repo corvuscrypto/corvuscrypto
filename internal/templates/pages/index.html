@@ -20,9 +20,11 @@
         </li>
       </ol>
     </div>
+    {{ if .LatestPost }}
     <div class="latest-post">
       {{ template "posts.card" .LatestPost}}
     </div>
+    {{end}}
   </div>
   {{ template "footer" . }}
 </body>

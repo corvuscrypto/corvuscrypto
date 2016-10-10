@@ -21,10 +21,11 @@ var Config *config
 func loadConfig() {
 	Config = new(config)
 
-	configFile, err := os.OpenFile(blogServerConfig, os.O_CREATE, 0600)
+	configFile, err := os.OpenFile(blogServerConfig, os.O_CREATE|os.O_RDWR, 0600)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer configFile.Close()
 
 	cfgDecoder := json.NewDecoder(configFile)
 	err = cfgDecoder.Decode(Config)
@@ -41,5 +42,6 @@ func loadConfig() {
 		Config.LogFilePath = "../logs/blog.log"
 		cfgEncoder := json.NewEncoder(configFile)
 		cfgEncoder.Encode(Config)
+
 	}
 }

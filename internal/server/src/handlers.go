@@ -80,16 +80,17 @@ func serveStatic(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	//if we get this far set the cache header values
-	w.Header().Set("Cache-Control", "max-age=31104000")
-	w.Header().Set("ETag", Config.Etag)
-
 	file, err := os.Open(Config.StaticPath + filepath)
 	defer file.Close()
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
+	//if we get this far set the cache header values
+	w.Header().Set("Cache-Control", "max-age=31104000")
+	w.Header().Set("ETag", Config.Etag)
+
 	reader := bufio.NewReader(file)
 	_, err = reader.WriteTo(w)
 	if err != nil {

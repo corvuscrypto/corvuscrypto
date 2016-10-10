@@ -18,3 +18,8 @@ for(var i=0;i < elems.length; i++) {
   }
   elems[i].addEventListener("blur", hideSubmitButton)
 }
+
+var searchElems = document.getElementsByClassName("nav-search__input");
+for (var i = 0; i < searchElems.length; i++) {
+  searchElems[i].classList.add("transition");
+}

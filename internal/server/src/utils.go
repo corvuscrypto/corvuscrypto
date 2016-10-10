@@ -8,11 +8,9 @@ import (
 //Header is just a utility function that quickly preps the header template data
 func Header(_title string) interface{} {
 	return struct {
-		Title  string
-		Assets map[string]interface{}
+		Title string
 	}{
 		_title,
-		Config.Assets,
 	}
 }
 
@@ -27,6 +25,7 @@ func Request(r *http.Request) interface{} {
 func BaseData(r *http.Request, title string) map[string]interface{} {
 	data := make(map[string]interface{})
 	data["Header"] = Header(title)
+	data["Assets"] = Config.Assets
 	data["Request"] = Request(r)
 	return data
 }

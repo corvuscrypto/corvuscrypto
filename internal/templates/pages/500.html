@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  {{ template "header" .Header }}
+  {{ template "header" . }}
 </head>
 <body>
   {{ template "navbar" . }}
@@ -12,7 +12,7 @@
       Oops, something happened to the carrier raven midflight. Please try again later.
     </p>
   </div>
-  {{ template "footer" .}}
+  {{ template "footer" . }}
 </body>
 </html>
 {{ end }}

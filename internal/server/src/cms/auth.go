@@ -118,7 +118,7 @@ func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	//check password matching
-	err := bcrypt.CompareHashAndPassword(Config.OwnerPassword, password)
+	err := bcrypt.CompareHashAndPassword(Config.passHash, password)
 	if err != nil {
 		loginViewWithError(w, r)
 		return

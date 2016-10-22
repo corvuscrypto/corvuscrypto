@@ -13,13 +13,13 @@ var ErrPostNotFound = mgo.ErrNotFound
 
 //Post represents a blog post
 type Post struct {
-	Number  int       `bson:"number"`
 	Date    time.Time `bson:"date"`
 	Title   string    `bson:"title"`
 	Summary string    `bson:"summary"`
 	Body    string    `bson:"body"`
 	Tags    []string  `bson:"tags"`
 	URL     string    `bson:"url"`
+	Publish time.Time `bson:"publish"`
 }
 
 //PostsDB is the only db connection that will be used for this app

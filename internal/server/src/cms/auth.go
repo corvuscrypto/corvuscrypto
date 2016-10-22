@@ -108,7 +108,7 @@ func loginViewWithError(w http.ResponseWriter, r *http.Request) {
 
 func login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-	username := strings.ToLower(r.PostFormValue("username"))
+	username := strings.TrimSpace(strings.ToLower(r.PostFormValue("username")))
 	password := []byte(r.PostFormValue("password"))
 
 	// first check for username consistency

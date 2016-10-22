@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -52,6 +53,7 @@ func loadConfig() {
 	if Config.OwnerPassword == "" || Config.OwnerUsername == "" {
 		log.Fatal("Both the username and password must be set!")
 	}
+	Config.OwnerUsername = strings.TrimSpace(strings.ToLower(Config.OwnerUsername))
 	Config.passHash, err = bcrypt.GenerateFromPassword([]byte(Config.OwnerPassword), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatal(err)

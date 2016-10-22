@@ -1,0 +1,22 @@
+{{define "cmsIndex"}}
+<!DOCTYPE html>
+<html>
+<head>
+  {{ template "header" . }}
+</head>
+<body>
+  {{ template "cmsNavbar" . }}
+  <div class="main-content">
+    <h1>Manage Posts</h1>
+    {{ range .posts }}
+    <div class="latest-post">
+      {{ template "posts.card" .}}
+    </div>
+    {{ else }}
+      <h2>No published posts to manage</h2>
+    {{end}}
+  </div>
+  {{ template "footer" . }}
+</body>
+</html>
+{{end}}

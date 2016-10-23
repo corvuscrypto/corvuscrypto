@@ -62,6 +62,7 @@ func InsertNewPost(p *Post) (err error) {
 
 //GetPostByURL retrieves a post by url
 func GetPostByURL(url string) (post *Post, err error) {
+	post = &Post{}
 	err = PostsDB.C("posts").Find(bson.M{"url": url}).One(post)
 	return
 }

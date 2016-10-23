@@ -7,33 +7,39 @@
 <body>
   {{ template "cmsNavbar" . }}
   <div class="main-content">
-    {{ if .Errors }}
-      <div class="alert alert-error">There were errors when saving the post!</div>
+    {{ if .Error }}
+      <div class="alert alert-danger">There were errors when saving the post!</div>
     {{end}}
     <h1>{{ if has .Request.URL.Path "edit"}}Edit{{else}}New{{end}} Post</h1>
-    <form target="{{.Request.URL.Path}}" method="POST" id="post-form">
+    <form action="{{.Request.URL.Path}}" method="POST" id="post-form">
       <div class="form-group row">
         <label for="title" class="col-sm-3 col-form-label">Title</label>
         <div class="col-sm-9">
-          <input type="text" class="form-control" name="title" placeholder="Title">
+          <input type="text" class="form-control" name="title" placeholder="Title" value="{{ .Post.Title }}">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="title" class="col-sm-3 col-form-label">Publish Date</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" name="date" placeholder="mm/dd/yyyy" value="{{ if .Post.Date }}{{ .Post.Date | date }}{{end}}">
         </div>
       </div>
       <div class="form-group row">
         <label for="short-url" class="col-sm-3 col-form-label">Short URL</label>
         <div class="col-sm-9">
-          <input type="text" class="form-control" name="shortURL" placeholder="example-short-url">
+          <input type="text" class="form-control" name="url" placeholder="example-short-url" value="{{ .Post.URL }}">
         </div>
       </div>
       <div class="form-group row">
         <label for="tags" class="col-sm-3 col-form-label">Tags (comma separated)</label>
         <div class="col-sm-9">
-          <input type="text" class="form-control" name="tags" placeholder="tags">
+          <input type="text" class="form-control" name="tags" placeholder="tags" value="{{ join .Post.Tags ", " }}">
         </div>
       </div>
       <div class="form-group row">
         <label for="summary" class="col-sm-3 col-form-label">Summary</label>
         <div class="col-sm-9">
-          <textarea class="form-control" rows="5" name="summary" maxlength="250"></textarea>
+          <textarea class="form-control" rows="5" name="summary" maxlength="250">{{ .Post.Summary }}</textarea>
         </div>
       </div>
       <div class="form-group row">
@@ -43,17 +49,21 @@
             Show Preview
           </a>
           <br/>
-          <textarea class="form-control post-input" name="post"></textarea>
+          <textarea class="form-control post-input" name="body">{{ .Post.Body }}</textarea>
         </div>
       </div>
       <div class="form-group row">
         <div class="col-sm-3">
         </div>
         <div class="col-sm-9">
-          <button data-value="0" class="btn submit-btn btn-primary">Save</button>
-          <button data-value="1" class="btn submit-btn btn-warning">Save and Publish Later</button>
-          <button data-value="2" class="btn submit-btn btn-success">Save and Publish Now</button>
-          <button data-value="3" class="btn submit-btn btn-danger">Delete</button>
+          <input type="submit" name="save" class="btn submit-btn btn-primary" value="Save">
+          <input type="hidden" name="published" value="{{.Post.Publish}}">
+          {{ if .Post.Publish }}
+          <input type="submit" name="unpublish" class="btn submit-btn btn-warning" value="Unpublish">
+          {{ else }}
+          <input type="submit" name="publish" class="btn submit-btn btn-success" value="Publish">
+          {{end}}
+          <input type="submit" name="delete" class="btn submit-btn btn-danger" value="Delete" >
         </div>
       </div>
     </form>

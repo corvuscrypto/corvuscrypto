@@ -12,27 +12,33 @@ import (
 )
 
 func parsePostForm(r *http.Request) (post *Post, ok bool) {
+	post = &Post{}
+	ok = true
 	post.Body = r.PostFormValue("body")
 	if post.Body == "" {
-		return nil, false
+		fmt.Println("body")
+		ok = false
 	}
 	var err error
-	post.Date, err = time.Parse(r.PostFormValue("date"), time.RFC3339)
+	post.Date, err = time.Parse("01/02/2006", r.PostFormValue("date"))
 	if err != nil {
-		return nil, false
+		post.Date = time.Now()
+		ok = false
 	}
-	if r.PostFormValue("publish") != "" {
+	if r.PostFormValue("unpublish") != "" {
+		post.Publish = false
+	} else if r.PostFormValue("publish") != "" {
 		post.Publish = true
 	} else {
-		post.Publish = r.PostFormValue("publish") == "true"
+		post.Publish = r.PostFormValue("published") == "true"
 	}
 	post.Summary = r.PostFormValue("summary")
 	if post.Summary == "" {
-		return nil, false
+		ok = false
 	}
 	post.Tags = strings.Split(r.PostFormValue("tags"), ",")
 	if len(post.Tags) == 0 {
-		return nil, false
+		ok = false
 	}
 	//normalize all tags
 	for i := range post.Tags {
@@ -40,30 +46,14 @@ func parsePostForm(r *http.Request) (post *Post, ok bool) {
 	}
 	post.Title = r.PostFormValue("title")
 	if post.Title == "" {
-		return nil, false
+		ok = false
 	}
 	post.URL = strings.ToLower(strings.TrimSpace(r.PostFormValue("url")))
 	valid, err := regexp.MatchString(`[0-9a-z\-]{10,}`, post.URL)
 	if post.URL == "" || !valid {
-		return nil, false
+		ok = false
 	}
-	ok = true
 	return
-}
-
-func editViewHandler(w http.ResponseWriter, r *http.Request, url string, errors bool) {
-	data := BaseData(r, "Edit Post")
-	var err error
-	data["Error"] = errors
-	data["Post"], err = GetPostByURL(url)
-	if err != nil {
-		http.Redirect(w, r, "/newpost", http.StatusFound)
-
-	}
-	err = globalTemplate.ExecuteTemplate(w, "editPost", data)
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 func getRouter() *httprouter.Router {
@@ -87,21 +77,56 @@ func getRouter() *httprouter.Router {
 			fmt.Println(err)
 		}
 	})
-	//Not very RESTful but eh.
-	router.POST("/drafts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		postURL := p.ByName("url")
+	router.POST("/newpost", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		post, ok := parsePostForm(r)
 		if !ok {
+			data := BaseData(r, "New Post")
+			data["Error"] = true
+			data["Post"] = post
+			err := globalTemplate.ExecuteTemplate(w, "editPost", data)
+			if err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
-		if err := UpdatePost(postURL, post); err != nil {
-			editViewHandler(w, r, postURL, true)
-			return
+		InsertNewPost(post)
+		http.Redirect(w, r, "/", http.StatusFound)
+	})
+	//Not very RESTful but eh.
+	router.POST("/drafts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		data := BaseData(r, "Edit Post")
+		postURL := p.ByName("url")
+		post, ok := parsePostForm(r)
+		data["Post"] = post
+		if !ok {
+			data["Error"] = true
+			err := globalTemplate.ExecuteTemplate(w, "editPost", data)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			err := UpdatePost(postURL, post)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			http.Redirect(w, r, "/drafts/"+post.URL, http.StatusFound)
 		}
-		http.Redirect(w, r, r.URL.Path, http.StatusFound)
 	}))
 	router.GET("/drafts/:url", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		editViewHandler(w, r, p.ByName("url"), false)
+		data := BaseData(r, "Edit Post")
+		postURL := p.ByName("url")
+		post, err := GetPostByURL(postURL)
+		if err != nil {
+			data["Error"] = true
+			http.Redirect(w, r, "/newpost", http.StatusFound)
+		}
+
+		data["Post"] = post
+		err = globalTemplate.ExecuteTemplate(w, "editPost", data)
+		if err != nil {
+			fmt.Println(err)
+		}
 	})
 	router.GET("/login", loginView)
 	router.POST("/login", login)

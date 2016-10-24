@@ -10,13 +10,14 @@ import (
 
 //Post represents a blog post
 type Post struct {
-	Date    time.Time `bson:"date"`
-	Title   string    `bson:"title"`
-	Summary string    `bson:"summary"`
-	Body    string    `bson:"body"`
-	Tags    []string  `bson:"tags"`
-	URL     string    `bson:"url"`
-	Publish bool      `bson:"publish"`
+	Date       time.Time `bson:"date"`
+	Title      string    `bson:"title"`
+	Summary    string    `bson:"summary"`
+	Body       string    `bson:"body"`
+	Tags       []string  `bson:"tags"`
+	URL        string    `bson:"url"`
+	Publish    bool      `bson:"publish"`
+	SearchTags []string  `bson:"searchTags"`
 }
 
 //PostsDB is the main post db
@@ -40,6 +41,9 @@ func initDBSession() {
 	})
 	postCollection.EnsureIndex(mgo.Index{
 		Key: []string{"tags"},
+	})
+	postCollection.EnsureIndex(mgo.Index{
+		Key: []string{"searchTags"},
 	})
 }
 

@@ -95,7 +95,7 @@
     })
     $("#show-preview-btn").click(function(e){
       var content = "<div class='post'>";
-      content += document.forms['post-form']['post'].value;
+      content += document.forms['post-form']['body'].value;
       content += "</div>";
       $(".preview .modal-body").html(content)
       $(".modal-body pre code").each(function(_, a){
@@ -104,22 +104,6 @@
       $(".preview").modal("show");
       e.preventDefault();
     })
-
-    function autoSave(){
-      var postForm = document.forms['post-form'];
-      var autoSaveData = {
-        title: postForm['title'].value,
-        shortURL: postForm['shortURL'].value,
-        tags: postForm['tags'].value,
-        summary: postForm['summary'].value,
-        postID: postForm['postID'].value,
-        actionValue: 0, //0 for save
-      };
-      $.post("/drafts", autoSaveData).success(function(data){
-        var postID = data.data.postID;
-        postForm['postID'].value = postID;
-      })
-    }
   </script>
 </body>
 </html>

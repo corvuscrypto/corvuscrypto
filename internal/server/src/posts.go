@@ -8,7 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//Only error we really need
+//ErrPostNotFound Only error we really need
 var ErrPostNotFound = mgo.ErrNotFound
 
 //Post represents a blog post
@@ -36,38 +36,38 @@ func initializeDBSession() {
 }
 
 func getLatestPost() (latestPost *Post, err error) {
-	err = PostsDB.C("posts").Find(nil).Sort("-_id").One(latestPost)
+	latestPost = &Post{}
+	err = PostsDB.C("posts").Find(bson.M{"publish": true}).Sort("-date").Limit(1).One(latestPost)
+	if err != nil {
+		latestPost = nil
+	}
 	return
 }
 
 func getPostByURL(url string) (*Post, error) {
-	var err error
 	post := &Post{}
-	err = PostsDB.C("posts").Find(bson.M{
+	PostsDB.C("posts").Find(bson.M{
 		"url": url,
 	}).One(post)
 	if post == nil || !post.Publish {
-		err = ErrPostNotFound
+		return nil, ErrPostNotFound
 	}
-	return post, err
+	return post, nil
 }
 
-func searchPosts(searchTerms []string, prevLast int) ([]*Post, error) {
+func searchPosts(searchTerms []string, prevLast bson.ObjectId) ([]*Post, error) {
 	var err error
 	var posts []*Post
 
 	iter := PostsDB.C("posts").Find(bson.M{
-		"tags": bson.M{
+		"searchTags": bson.M{
 			"$all": searchTerms,
 		},
-		"_id": bson.M{
-			"$gt": prevLast,
-		},
-	}).Sort("-_id").Limit(10).Iter()
+	}).Sort("-date").Limit(10).Iter()
 
 	defer iter.Close()
 
-	tempPost := new(Post)
+	tempPost := &Post{}
 
 	for iter.Next(tempPost) {
 		var newPost = new(Post)
@@ -78,16 +78,13 @@ func searchPosts(searchTerms []string, prevLast int) ([]*Post, error) {
 	return posts, err
 }
 
-func getPostsByTags(tags []string, prevLast int) ([]*Post, error) {
+func getPostsByTags(tags []string, prevLast bson.ObjectId) ([]*Post, error) {
 	var err error
 	var posts []*Post
 
 	iter := PostsDB.C("posts").Find(bson.M{
 		"tags": bson.M{
 			"$all": tags,
-		},
-		"number": bson.M{
-			"$gt": prevLast,
 		},
 	}).Sort("-_id").Limit(10).Iter()
 
@@ -104,22 +101,20 @@ func getPostsByTags(tags []string, prevLast int) ([]*Post, error) {
 	return posts, err
 }
 
-func getAllPosts(prevLast int) ([]*Post, error) {
+func getAllPosts(prevLast bson.ObjectId) ([]*Post, error) {
 	var err error
 	var posts []*Post
 
 	iter := PostsDB.C("posts").Find(bson.M{
-		"_id": bson.M{
-			"$gt": prevLast,
-		},
-	}).Sort("-_id").Limit(10).Iter()
+		"publish": true,
+	}).Sort("-date").Limit(10).Iter()
 
 	defer iter.Close()
 
-	tempPost := new(Post)
+	tempPost := &Post{}
 
 	for iter.Next(tempPost) {
-		var newPost = new(Post)
+		var newPost = &Post{}
 		*newPost = *tempPost
 		posts = append(posts, newPost)
 		tempPost = nil

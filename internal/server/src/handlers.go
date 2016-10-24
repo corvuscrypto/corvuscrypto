@@ -7,8 +7,9 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
+
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -16,17 +17,40 @@ import (
 type compressionWriter struct {
 	io.Writer
 	http.ResponseWriter
+	overrideCompression bool
+}
+
+type nopWriter struct {
+	io.Writer
+}
+
+func (n *nopWriter) Write(b []byte) (int, error) {
+	return 0, nil
 }
 
 func (c *compressionWriter) Write(p []byte) (int, error) {
 	if c.Header().Get("Content-Type") == "" {
 		c.Header().Set("Content-Type", http.DetectContentType(p))
 	}
-	b, err := c.Writer.Write(p)
+	var b int
+	var err error
+	if c.overrideCompression {
+		b, err = c.ResponseWriter.Write(p)
+	} else {
+		c.Header().Set("Content-Encoding", "gzip")
+		b, err = c.Writer.Write(p)
+	}
 	if err != nil {
 		fmt.Println(err)
 	}
 	return b, err
+}
+
+func (c *compressionWriter) WriteHeader(status int) {
+	if status != http.StatusFound || status != http.StatusOK || status != http.StatusNotModified {
+		c.overrideCompression = true
+	}
+	c.ResponseWriter.WriteHeader(status)
 }
 
 func cached(r *http.Request) bool {
@@ -38,12 +62,14 @@ func cached(r *http.Request) bool {
 
 func compress(handler httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		w.Header().Set("Content-Encoding", "gzip")
 		newWriter := new(compressionWriter)
 		newWriter.ResponseWriter = w
 		gzw := gzip.NewWriter(w)
 		newWriter.Writer = gzw
 		handler(newWriter, r, p)
+		if newWriter.overrideCompression {
+			gzw.Reset(new(nopWriter))
+		}
 		err := gzw.Close()
 		if err != nil && err != http.ErrBodyNotAllowed {
 			fmt.Println(err)
@@ -100,9 +126,18 @@ func serveStatic(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func serverErrorPage(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusInternalServerError)
+	w.WriteHeader(500)
 	data := BaseData(r, "CorvusCrypto.com - internal server error")
 	err := globalTemplate.ExecuteTemplate(w, "500", data)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func notFoundPage(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(404)
+	data := BaseData(r, "CorvusCrypto.com - 404")
+	err := globalTemplate.ExecuteTemplate(w, "404", data)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -129,11 +164,9 @@ func getRouter() *httprouter.Router {
 	router.GET("/posts", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - Posts")
 		var posts []*Post
+		var err error
 
-		last, err := strconv.Atoi(r.FormValue("last"))
-		if err != nil {
-			last = 0
-		}
+		last := bson.ObjectId(r.FormValue("last"))
 		q := strings.ToLower(strings.Trim(r.FormValue("q"), " "))
 		if q != "" {
 			searchTerms := strings.Split(q, " ")
@@ -156,15 +189,12 @@ func getRouter() *httprouter.Router {
 			fmt.Println(err)
 		}
 	}))
+
 	router.GET("/posts/:postURL", compress(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		url := p.ByName("postURL")
 		post, err := getPostByURL(url)
 		if err != nil {
-			if err == ErrPostNotFound {
-				w.WriteHeader(404)
-			} else {
-				w.WriteHeader(500)
-			}
+			notFoundPage(w, r)
 			return
 		}
 		data := BaseData(r, "CorvusCrypto.com - "+strings.Title(post.Title))

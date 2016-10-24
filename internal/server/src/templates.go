@@ -42,6 +42,7 @@ func compileTemplates() {
 	}
 	tempFuncs["title"] = strings.Title
 	tempFuncs["has"] = strings.Contains
+	tempFuncs["join"] = strings.Join
 
 	globalTemplate = template.New("globalCommon").Funcs(tempFuncs)
 

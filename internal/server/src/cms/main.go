@@ -53,6 +53,8 @@ func parsePostForm(r *http.Request) (post *Post, ok bool) {
 	if post.URL == "" || !valid {
 		ok = false
 	}
+
+	post.SearchTags = append(post.SearchTags, strings.Split(strings.ToLower(post.Title), " ")...)
 	return
 }
 

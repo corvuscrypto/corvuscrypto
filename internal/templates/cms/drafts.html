@@ -1,4 +1,4 @@
-{{define "cmsIndex"}}
+{{define "drafts"}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,13 +7,13 @@
 <body>
   {{ template "cmsNavbar" . }}
   <div class="main-content">
-    <h1>Manage Posts</h1>
+    <h1>Manage Drafts</h1>
     {{ range .Posts }}
     <div class="latest-post">
       {{ template "posts.card" .}}
     </div>
     {{ else }}
-      <h2>No published posts to manage</h2>
+      <h2>No drafts to manage</h2>
     {{end}}
   </div>
   {{ template "footer" . }}

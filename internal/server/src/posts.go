@@ -19,7 +19,7 @@ type Post struct {
 	Body    string    `bson:"body"`
 	Tags    []string  `bson:"tags"`
 	URL     string    `bson:"url"`
-	Publish time.Time `bson:"publish"`
+	Publish bool      `bson:"publish"`
 }
 
 //PostsDB is the only db connection that will be used for this app
@@ -46,7 +46,7 @@ func getPostByURL(url string) (*Post, error) {
 	err = PostsDB.C("posts").Find(bson.M{
 		"url": url,
 	}).One(post)
-	if post == nil {
+	if post == nil || !post.Publish {
 		err = ErrPostNotFound
 	}
 	return post, err
@@ -57,10 +57,10 @@ func searchPosts(searchTerms []string, prevLast int) ([]*Post, error) {
 	var posts []*Post
 
 	iter := PostsDB.C("posts").Find(bson.M{
-		"searchTags": bson.M{
+		"tags": bson.M{
 			"$all": searchTerms,
 		},
-		"number": bson.M{
+		"_id": bson.M{
 			"$gt": prevLast,
 		},
 	}).Sort("-_id").Limit(10).Iter()
@@ -93,7 +93,7 @@ func getPostsByTags(tags []string, prevLast int) ([]*Post, error) {
 
 	defer iter.Close()
 
-	tempPost := new(Post)
+	tempPost := &Post{}
 
 	for iter.Next(tempPost) {
 		var newPost *Post
@@ -109,7 +109,7 @@ func getAllPosts(prevLast int) ([]*Post, error) {
 	var posts []*Post
 
 	iter := PostsDB.C("posts").Find(bson.M{
-		"number": bson.M{
+		"_id": bson.M{
 			"$gt": prevLast,
 		},
 	}).Sort("-_id").Limit(10).Iter()

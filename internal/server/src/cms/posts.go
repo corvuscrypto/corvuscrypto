@@ -66,3 +66,10 @@ func GetPostByURL(url string) (post *Post, err error) {
 	err = PostsDB.C("posts").Find(bson.M{"url": url}).One(post)
 	return
 }
+
+//GetPosts retrieves all posts, or drafts depending on the bool flag passed
+func GetPosts(published bool) (posts []*Post, err error) {
+	posts = []*Post{}
+	err = PostsDB.C("posts").Find(bson.M{"publish": published}).Sort("-date").All(&posts)
+	return
+}

@@ -62,7 +62,9 @@ func getRouter() *httprouter.Router {
 	router.ServeFiles("/static/*filepath", http.Dir(Config.StaticPath))
 	router.GET("/", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CMS index")
-		err := globalTemplate.ExecuteTemplate(w, "cmsIndex", data)
+		var err error
+		data["Posts"], err = GetPosts(true)
+		err = globalTemplate.ExecuteTemplate(w, "cmsIndex", data)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -93,7 +95,7 @@ func getRouter() *httprouter.Router {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
 	//Not very RESTful but eh.
-	router.POST("/drafts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	router.POST("/posts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		data := BaseData(r, "Edit Post")
 		postURL := p.ByName("url")
 		post, ok := parsePostForm(r)
@@ -110,10 +112,10 @@ func getRouter() *httprouter.Router {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			http.Redirect(w, r, "/drafts/"+post.URL, http.StatusFound)
+			http.Redirect(w, r, "/posts/"+post.URL, http.StatusFound)
 		}
 	}))
-	router.GET("/drafts/:url", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	router.GET("/posts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		data := BaseData(r, "Edit Post")
 		postURL := p.ByName("url")
 		post, err := GetPostByURL(postURL)
@@ -127,7 +129,23 @@ func getRouter() *httprouter.Router {
 		if err != nil {
 			fmt.Println(err)
 		}
-	})
+	}))
+	router.GET("/drafts", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		data := BaseData(r, "Drafts")
+		posts, err := GetPosts(false)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(posts)
+
+		data["Posts"] = posts
+		err = globalTemplate.ExecuteTemplate(w, "drafts", data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}))
 	router.GET("/login", loginView)
 	router.POST("/login", login)
 	return router

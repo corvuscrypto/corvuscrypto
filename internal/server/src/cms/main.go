@@ -163,7 +163,12 @@ func main() {
 	server.Handler = router
 	server.Addr = ":8081"
 	//server.ListenAndServeTLS("","")
-	err := server.ListenAndServe()
+	var err error
+	if Config.certFile != "" {
+		err = server.ListenAndServeTLS(Config.certFile, Config.keyFile)
+	} else {
+		err = server.ListenAndServe()
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

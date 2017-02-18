@@ -17,6 +17,8 @@ type config struct {
 	Assets        map[string]interface{}
 	LogFilePath   string
 	Etag          string
+	certFile      string
+	keyFile       string
 	OwnerUsername string
 	OwnerPassword string
 	passHash      []byte
@@ -51,7 +53,7 @@ func loadConfig() {
 		cfgEncoder.Encode(Config)
 	}
 	if Config.OwnerPassword == "" || Config.OwnerUsername == "" {
-		log.Fatal("Both the username and password must be set!")
+		log.Fatal("Both the username and password must be set in the config file!")
 	}
 	Config.OwnerUsername = strings.TrimSpace(strings.ToLower(Config.OwnerUsername))
 	Config.passHash, err = bcrypt.GenerateFromPassword([]byte(Config.OwnerPassword), bcrypt.DefaultCost)

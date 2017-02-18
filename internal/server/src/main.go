@@ -11,5 +11,8 @@ func main() {
 	server := new(http.Server)
 	server.Handler = router
 	server.Addr = ":8080"
+	if Config.CertFile != "" {
+		server.ListenAndServeTLS(Config.CertFile, Config.KeyFile)
+	}
 	server.ListenAndServe()
 }

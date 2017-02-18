@@ -164,8 +164,8 @@ func main() {
 	server.Addr = ":8081"
 	//server.ListenAndServeTLS("","")
 	var err error
-	if Config.certFile != "" {
-		err = server.ListenAndServeTLS(Config.certFile, Config.keyFile)
+	if Config.CertFile != "" {
+		err = server.ListenAndServeTLS(Config.CertFile, Config.KeyFile)
 	} else {
 		err = server.ListenAndServe()
 	}

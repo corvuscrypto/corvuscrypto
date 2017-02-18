@@ -12,6 +12,8 @@ type config struct {
 	TemplatePath string
 	StaticPath   string
 	Assets       map[string]interface{}
+	CertFile     string
+	KeyFile      string
 	LogFilePath  string
 	Etag         string
 }

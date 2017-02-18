@@ -17,8 +17,8 @@ type config struct {
 	Assets        map[string]interface{}
 	LogFilePath   string
 	Etag          string
-	certFile      string
-	keyFile       string
+	CertFile      string
+	KeyFile       string
 	OwnerUsername string
 	OwnerPassword string
 	passHash      []byte

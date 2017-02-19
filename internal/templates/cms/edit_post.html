@@ -17,7 +17,7 @@
         </ul>
       </div>
     {{end}}
-    <h1>{{ if has .Request.URL.Path "edit"}}Edit{{else}}New{{end}} Post</h1>
+    <h1>{{ if has .Request.URL.Path "newpost"}}New{{else}}Edit{{end}} Post</h1>
     <form action="{{.Request.URL.Path}}" method="POST" id="post-form">
       <div class="form-group row">
         <label for="title" class="col-sm-3 col-form-label">Title</label>
@@ -70,7 +70,9 @@
           {{ else }}
           <input type="submit" name="publish" class="btn submit-btn btn-success" value="Publish">
           {{end}}
+          {{ if has .Request.URL.Path "newpost" | not }}
           <input type="submit" name="delete" class="btn submit-btn btn-danger" value="Delete" >
+          {{ end }}
         </div>
       </div>
     </form>

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -79,14 +78,14 @@ func getRouter() *httprouter.Router {
 	router.GET("/dashboard", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	}))
-	router.GET("/newpost", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	router.GET("/newpost", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "New Post")
 		err := globalTemplate.ExecuteTemplate(w, "editPost", data)
 		if err != nil {
 			LogError(err)
 		}
-	})
-	router.POST("/newpost", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	}))
+	router.POST("/newpost", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		post, ok, errors := parsePostForm(r)
 		if !ok {
 			data := BaseData(r, "New Post")
@@ -101,11 +100,19 @@ func getRouter() *httprouter.Router {
 		}
 		InsertNewPost(post)
 		http.Redirect(w, r, "/", http.StatusFound)
-	})
+	}))
 	//Not very RESTful but eh.
 	router.POST("/posts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		data := BaseData(r, "Edit Post")
 		postURL := p.ByName("url")
+		if r.PostFormValue("delete") != "" {
+			err := DeletePost(postURL)
+			if err != nil {
+				LogError(err)
+			}
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
 		post, ok, errors := parsePostForm(r)
 		data["Post"] = post
 		if !ok {
@@ -147,7 +154,6 @@ func getRouter() *httprouter.Router {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		fmt.Println(posts)
 
 		data["Posts"] = posts
 		err = globalTemplate.ExecuteTemplate(w, "drafts", data)

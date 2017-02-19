@@ -47,6 +47,12 @@ func initDBSession() {
 	})
 }
 
+//RemovePost performs a whole document Removal
+func DeletePost(url string) (err error) {
+	err = PostsDB.C("posts").Remove(bson.M{"url": url})
+	return
+}
+
 //UpdatePost performs a whole document update
 func UpdatePost(url string, p *Post) (err error) {
 	err = PostsDB.C("posts").Update(bson.M{"url": url}, p)

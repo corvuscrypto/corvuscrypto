@@ -134,6 +134,11 @@ func serverErrorPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func panicHandler(w http.ResponseWriter, r *http.Request, e interface{}) {
+	LogError(e)
+	serverErrorPage(w, r)
+}
+
 func notFoundPage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
 	data := BaseData(r, "CorvusCrypto.com - 404")
@@ -143,8 +148,17 @@ func notFoundPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//NotFoundHandler deals with the 404 pages
+type NotFoundHandler struct{}
+
+func (n NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	serverErrorPage(w, r)
+}
+
 func getRouter() *httprouter.Router {
 	router := httprouter.New()
+	router.NotFound = new(NotFoundHandler)
+	router.PanicHandler = panicHandler
 	router.GET("/static/*filepath", compress(serveStatic))
 	router.GET("/", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - just another coder blog")

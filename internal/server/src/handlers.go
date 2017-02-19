@@ -160,6 +160,9 @@ func getRouter() *httprouter.Router {
 	router.NotFound = new(NotFoundHandler)
 	router.PanicHandler = panicHandler
 	router.GET("/static/*filepath", compress(serveStatic))
+	router.GET("/favicon.ico", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		http.Redirect(w, r, "static/images/favicon.ico", http.StatusFound)
+	}))
 	router.GET("/", compress(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "CorvusCrypto.com - just another coder blog")
 

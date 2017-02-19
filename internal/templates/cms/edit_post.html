@@ -8,7 +8,14 @@
   {{ template "cmsNavbar" . }}
   <div class="main-content">
     {{ if .Error }}
-      <div class="alert alert-danger">There were errors when saving the post!</div>
+      <div class="alert alert-danger">
+        There were errors when saving the post!
+        <ul>
+          {{ range .ErrorDetails }}
+            <li>{{ . }}</li>
+          {{ end }}
+        </ul>
+      </div>
     {{end}}
     <h1>{{ if has .Request.URL.Path "edit"}}Edit{{else}}New{{end}} Post</h1>
     <form action="{{.Request.URL.Path}}" method="POST" id="post-form">

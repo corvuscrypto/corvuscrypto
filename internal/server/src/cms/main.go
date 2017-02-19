@@ -11,17 +11,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func parsePostForm(r *http.Request) (post *Post, ok bool) {
+func parsePostForm(r *http.Request) (post *Post, ok bool, errors []string) {
 	post = &Post{}
 	ok = true
-	post.Body = r.PostFormValue("body")
+	post.Body = strings.TrimSpace(r.PostFormValue("body"))
 	if post.Body == "" {
-		fmt.Println("body")
+		errors = append(errors, "Post body is empty!")
 		ok = false
 	}
 	var err error
 	post.Date, err = time.Parse("01/02/2006", r.PostFormValue("date"))
 	if err != nil {
+		errors = append(errors, "Post Date could not be parsed!")
 		post.Date = time.Now()
 		ok = false
 	}
@@ -34,10 +35,12 @@ func parsePostForm(r *http.Request) (post *Post, ok bool) {
 	}
 	post.Summary = r.PostFormValue("summary")
 	if post.Summary == "" {
+		errors = append(errors, "Post summary was empty!")
 		ok = false
 	}
 	post.Tags = strings.Split(r.PostFormValue("tags"), ",")
 	if len(post.Tags) == 0 {
+		errors = append(errors, "Post tags field was empty!")
 		ok = false
 	}
 	//normalize all tags
@@ -46,11 +49,13 @@ func parsePostForm(r *http.Request) (post *Post, ok bool) {
 	}
 	post.Title = r.PostFormValue("title")
 	if post.Title == "" {
+		errors = append(errors, "Post title was empty!")
 		ok = false
 	}
 	post.URL = strings.ToLower(strings.TrimSpace(r.PostFormValue("url")))
-	valid, err := regexp.MatchString(`[0-9a-z\-]{10,}`, post.URL)
+	valid, _ := regexp.MatchString(`[0-9a-z\-]{5,}`, post.URL)
 	if post.URL == "" || !valid {
+		errors = append(errors, "Post short-URL was invalid!")
 		ok = false
 	}
 
@@ -68,7 +73,7 @@ func getRouter() *httprouter.Router {
 		data["Posts"], err = GetPosts(true)
 		err = globalTemplate.ExecuteTemplate(w, "cmsIndex", data)
 		if err != nil {
-			fmt.Println(err)
+			LogError(err)
 		}
 	}))
 	router.GET("/dashboard", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -78,18 +83,19 @@ func getRouter() *httprouter.Router {
 		data := BaseData(r, "New Post")
 		err := globalTemplate.ExecuteTemplate(w, "editPost", data)
 		if err != nil {
-			fmt.Println(err)
+			LogError(err)
 		}
 	})
 	router.POST("/newpost", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		post, ok := parsePostForm(r)
+		post, ok, errors := parsePostForm(r)
 		if !ok {
 			data := BaseData(r, "New Post")
 			data["Error"] = true
+			data["ErrorDetails"] = errors
 			data["Post"] = post
 			err := globalTemplate.ExecuteTemplate(w, "editPost", data)
 			if err != nil {
-				fmt.Println(err)
+				LogError(err)
 			}
 			return
 		}
@@ -100,13 +106,14 @@ func getRouter() *httprouter.Router {
 	router.POST("/posts/:url", checkAuth(func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		data := BaseData(r, "Edit Post")
 		postURL := p.ByName("url")
-		post, ok := parsePostForm(r)
+		post, ok, errors := parsePostForm(r)
 		data["Post"] = post
 		if !ok {
 			data["Error"] = true
+			data["ErrorDetails"] = errors
 			err := globalTemplate.ExecuteTemplate(w, "editPost", data)
 			if err != nil {
-				fmt.Println(err)
+				LogError(err)
 			}
 		} else {
 			err := UpdatePost(postURL, post)
@@ -129,15 +136,15 @@ func getRouter() *httprouter.Router {
 		data["Post"] = post
 		err = globalTemplate.ExecuteTemplate(w, "editPost", data)
 		if err != nil {
-			fmt.Println(err)
+			LogError(err)
 		}
 	}))
 	router.GET("/drafts", checkAuth(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		data := BaseData(r, "Drafts")
 		posts, err := GetPosts(false)
 		if err != nil {
+			LogError(err)
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
 			return
 		}
 		fmt.Println(posts)
@@ -145,7 +152,7 @@ func getRouter() *httprouter.Router {
 		data["Posts"] = posts
 		err = globalTemplate.ExecuteTemplate(w, "drafts", data)
 		if err != nil {
-			fmt.Println(err)
+			LogError(err)
 		}
 	}))
 	router.GET("/login", loginView)
@@ -155,6 +162,7 @@ func getRouter() *httprouter.Router {
 
 func main() {
 	loadConfig()
+	createLogger()
 	initCipher()
 	compileTemplates()
 	initDBSession()

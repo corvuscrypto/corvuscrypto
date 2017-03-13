@@ -5,10 +5,12 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -21,18 +23,20 @@ const cookieName = "authtkt"
 
 // these vars will drive the auth system
 var secretKey []byte
-var secretNonce []byte
+var nonceCtr uint64
+var noncePrefix []byte
 var verificationNonce []byte
+
 var lastNonceGenerationTime time.Time
 
 var cipherInterface cipher.AEAD
 
 func initCipher() {
 	secretKey = make([]byte, 32)
-	secretNonce = make([]byte, 12)
+	noncePrefix = make([]byte, 4)
 	verificationNonce = make([]byte, 32)
 	rand.Read(secretKey)
-	rand.Read(secretNonce)
+	rand.Read(noncePrefix)
 	rand.Read(verificationNonce)
 	lastNonceGenerationTime = time.Now()
 	block, _ := aes.NewCipher(secretKey)
@@ -43,9 +47,16 @@ func initCipher() {
 	}
 }
 
+func generateNewGCMNonce() []byte {
+	ctr := make([]byte, 8)
+	binary.BigEndian.PutUint64(ctr, atomic.AddUint64(&nonceCtr, 1))
+	return append(noncePrefix, ctr...)
+}
+
 func generateSignedAuthToken() []byte {
 	//we will do a simple signed random nonce to check against
-	token := cipherInterface.Seal(nil, secretNonce, verificationNonce, nil)
+	nonce := generateNewGCMNonce()
+	token := append(nonce, cipherInterface.Seal(nil, nonce, verificationNonce, nil)...)
 	return token
 }
 
@@ -58,7 +69,10 @@ func isTokenValid(token []byte) bool {
 		lastNonceGenerationTime = time.Now()
 		return false
 	}
-	decodedVal, err := cipherInterface.Open(nil, secretNonce, token, nil)
+
+	nonce := token[:12]
+	data := token[12:]
+	decodedVal, err := cipherInterface.Open(nil, nonce, data, nil)
 	if err != nil || string(decodedVal) != string(verificationNonce) {
 		return false
 	}

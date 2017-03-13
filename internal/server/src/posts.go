@@ -112,12 +112,12 @@ func getAllPosts(prevLast bson.ObjectId) ([]*Post, error) {
 	defer iter.Close()
 
 	tempPost := &Post{}
-
 	for iter.Next(tempPost) {
 		var newPost = &Post{}
 		*newPost = *tempPost
 		posts = append(posts, newPost)
-		tempPost = nil
+		tempPost = &Post{}
 	}
+	err = iter.Err()
 	return posts, err
 }

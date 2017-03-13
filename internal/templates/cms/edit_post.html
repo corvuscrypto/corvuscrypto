@@ -111,6 +111,7 @@
         hljs.highlightBlock(a);
       })
       $(".preview").modal("show");
+      MathJax.Hub.Typeset(); //reload the math
       e.preventDefault();
     })
   </script>
